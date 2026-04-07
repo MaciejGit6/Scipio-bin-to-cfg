@@ -42,7 +42,7 @@ An educational binary analysis project exploring how to translate raw machine co
                            --..                                                 
 
 
-![IMPORTANT](https://img.shields.io/badge/after%20compiling-use%20this%20command%20to%20make%20scipio%20accessible%20from%20any%20directory-red)
+after compiling use this command to make scipio accessible from any directory:  
 
     $sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
 
