@@ -40,8 +40,10 @@ An educational binary analysis project exploring how to translate raw machine co
                           i#00#011100#-.                                        
                          .#00011#i-                                             
                            --..                                                 
+                                                                            
                                                                                 
-
+after compiling use this command to make scipio accessible from any directory:
+sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
 
 Scipio (Work in Progress)
 Scipio is a student research project currently in development, aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code to construct basic Control Flow Graphs (CFGs).
