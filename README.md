@@ -42,13 +42,6 @@ An educational binary analysis project exploring how to translate raw machine co
                            --..                                                 
                                                                                 
 
-   _____  _____ _____ _____ _____  ____  
-  / ____|/ ____|_   _|  __ \_   _|/ __ \ 
- | (___ | |      | | | |__) || | | |  | |
-  \___ \| |      | | |  ___/ | | | |  | |
-  ____) | |____ _| |_| |    _| |_| |__| |
- |_____/ \_____|_____|_|   |_____|\____/                                                                        
-                                                                                
 
 Scipio (Work in Progress)
 Scipio is a student research project currently in development, aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code to construct basic Control Flow Graphs (CFGs).
