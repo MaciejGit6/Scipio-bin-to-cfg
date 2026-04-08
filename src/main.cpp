@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
     std::cout << "[*] Output Graph  : " << output_file << "\n";
     std::cout << "[*] Initializing Scipio Engine...\n\n";
 
+    parse_elf_header(argv[1]);
 
     return 0;
 }

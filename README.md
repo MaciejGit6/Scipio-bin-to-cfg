@@ -46,6 +46,8 @@ after compiling use this command to make scipio accessible from any directory:
 
     $sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
 
+DESCRIPTION
+
 Scipio (Work in Progress)
 Scipio is a student research project currently in development, aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code to construct basic Control Flow Graphs (CFGs).
 
@@ -68,3 +70,14 @@ The Decoder: Write a basic parser that can open an executable binary, locate the
 Basic Block Generation: Implement an algorithm to scan the decoded instructions, identifying branching logic (jumps, calls, returns) to group the code into sequential Basic Blocks.
 
 Graph Construction: Connect these Basic Blocks dynamically to generate a mapped representation (CFG) of the program's execution paths, ideally outputting data that can be visualized later.
+
+Later Plans:
+
+By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
+
+----------------------------------------
+
+
+
+
+
