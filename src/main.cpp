@@ -133,27 +133,27 @@ int main(int argc, char* argv[]) {
         // 5. Export the populated graph to a .dot file
         graph_engine->export_to_dot(output_file);
 
-        // 6. Automatically generate the SVG file
-        std::cout << "[*] Running Graphviz to generate SVG...\n";
+        // 6. Automatically generate the PDF file
+        std::cout << "[*] Running Graphviz to generate PDF...\n";
         
-        // Figure out the SVG filename (replace .cfg with .svg)
-        std::string svg_file = output_file;
-        size_t dot_pos = svg_file.find_last_of('.');
+        // Figure out the PDF filename (replace .cfg with .pdf)
+        std::string pdf_file = output_file;
+        size_t dot_pos = pdf_file.find_last_of('.');
         if (dot_pos != std::string::npos) {
-            svg_file = svg_file.substr(0, dot_pos) + ".svg";
+            pdf_file = pdf_file.substr(0, dot_pos) + ".pdf";
         } else {
-            svg_file += ".svg";
+            pdf_file += ".pdf";
         }
 
-        // Construct the terminal command
-        std::string command = "dot -Tsvg " + output_file + " -o " + svg_file;
+        // Construct the terminal command (-Tpdf instead of -Tsvg)
+        std::string command = "dot -Tpdf " + output_file + " -o " + pdf_file;
         
         // Execute the command in the Linux shell
         int result = std::system(command.c_str());
         
         if (result == 0) {
             std::cout << "[+] Visualization ready! You can view it by running:\n";
-            std::cout << "    explorer.exe " << svg_file << "\n";
+            std::cout << "    explorer.exe " << pdf_file << "\n";
         } else {
             std::cout << "[-] Error: Graphviz rendering failed.\n";
             std::cout << "    Make sure it is installed: sudo apt install graphviz\n";
