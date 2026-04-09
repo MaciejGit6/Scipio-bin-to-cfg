@@ -53,7 +53,11 @@ typedef struct {
 // ---------------------------------------------------------
 // Parses the ELF file using mmap() and prints the section layout
 int parse_elf_header(const char* filepath);
-int dump_text_section(const char* filepath);
+// Define a function pointer type for the C++ callback
+typedef void (*InstructionCallback)(uint64_t address, const char* mnemonic, const char* operands);
+
+// Update your disassembler prototype to accept this callback
+int disassemble_text_section(const char* filepath, InstructionCallback callback);
 
 
 #ifdef __cplusplus

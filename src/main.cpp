@@ -4,9 +4,52 @@
 #include <string>
 #include <unistd.h>  // Required for readlink()
 #include <limits.h>  // Required for PATH_MAX
+#include <cstdlib>
 #include "elf_parser.h"
 
+#include <memory>
+#include "cfg.hpp"
 
+std::unique_ptr<CFG> graph_engine = nullptr;
+std::shared_ptr<BasicBlock> current_block = nullptr;
+
+
+extern "C" void instruction_receiver(uint64_t address, const char* mnemonic, const char* operands) {
+    // If we don't have an active block, create one at the current address
+    if (current_block == nullptr) {
+        current_block = graph_engine->get_or_create_block(address);
+    }
+
+    // Add the instruction to the block
+    current_block->add_instruction(address, mnemonic, operands);
+
+    // --- THE BLOCK SPLITTER LOGIC ---
+    std::string mnem(mnemonic);
+    std::string ops(operands);
+
+    // Is this a branch/jump instruction? 
+    // (Starts with 'j', or is 'call', or is 'ret')
+    bool is_branch = (mnem[0] == 'j' || mnem == "call" || mnem == "ret");
+
+    if (is_branch) {
+        // If it jumps to a specific hex address, extract it and create an edge!
+        size_t hex_pos = ops.find("0x");
+        if (hex_pos != std::string::npos) {
+            try {
+                // Convert the hex string to an actual integer
+                uint64_t target_addr = std::stoull(ops.substr(hex_pos), nullptr, 16);
+                
+                // Add the edge to the Adjacency Matrix
+                graph_engine->add_edge(current_block->start_address, target_addr);
+            } catch (...) {
+                // Ignore parsing errors (e.g., if the jump is to a register like `call rax`)
+            }
+        }
+
+        // Close the block! The NEXT instruction will trigger the creation of a new BasicBlock.
+        current_block = nullptr; 
+    }
+}
 
 
 void print_banner() {
@@ -79,8 +122,42 @@ int main(int argc, char* argv[]) {
     std::cout << "[*] Output Graph  : " << output_file << "\n";
     std::cout << "[*] Initializing Scipio Engine...\n\n";
 
-    if(parse_elf_header(argv[1]) == 0){
-        dump_text_section(argv[1]);
+    if (parse_elf_header(input_file.c_str()) == 0) {
+        
+        // 3. Initialize the CFG (We will assume entry is 0 for now)
+        graph_engine = std::make_unique<CFG>(0);
+
+        // 4. Run the C decoder, passing our C++ receiver function!
+        disassemble_text_section(input_file.c_str(), instruction_receiver);
+
+        // 5. Export the populated graph to a .dot file
+        graph_engine->export_to_dot(output_file);
+
+        // 6. Automatically generate the SVG file
+        std::cout << "[*] Running Graphviz to generate SVG...\n";
+        
+        // Figure out the SVG filename (replace .cfg with .svg)
+        std::string svg_file = output_file;
+        size_t dot_pos = svg_file.find_last_of('.');
+        if (dot_pos != std::string::npos) {
+            svg_file = svg_file.substr(0, dot_pos) + ".svg";
+        } else {
+            svg_file += ".svg";
+        }
+
+        // Construct the terminal command
+        std::string command = "dot -Tsvg " + output_file + " -o " + svg_file;
+        
+        // Execute the command in the Linux shell
+        int result = std::system(command.c_str());
+        
+        if (result == 0) {
+            std::cout << "[+] Visualization ready! You can view it by running:\n";
+            std::cout << "    explorer.exe " << svg_file << "\n";
+        } else {
+            std::cout << "[-] Error: Graphviz rendering failed.\n";
+            std::cout << "    Make sure it is installed: sudo apt install graphviz\n";
+        }
     }
 
     return 0;

@@ -5,6 +5,7 @@
 #include <sys/mman.h>   
 #include <sys/stat.h>   
 #include <unistd.h>     
+#include <capstone/capstone.h>
 
 int parse_elf_header(const char* filepath) {
 
@@ -28,10 +29,10 @@ int parse_elf_header(const char* filepath) {
         return -1;
     }
 
-    //Cast the very start of the mapped memory to our ELF header struct
+    //Casting the very start of the mapped memory to our ELF header struct
     Elf64_Ehdr* elf_hdr = (Elf64_Ehdr*)mapped_data;
 
-    // Verify Magic Bytes
+    // Verifying Magic Bytes
     if (elf_hdr->e_ident[0] != 0x7f || elf_hdr->e_ident[1] != 'E' ||
         elf_hdr->e_ident[2] != 'L'  || elf_hdr->e_ident[3] != 'F') {
         printf("[-] Error: Not a valid ELF file.\n");
@@ -43,7 +44,7 @@ int parse_elf_header(const char* filepath) {
     printf("[+] Verified: Valid ELF Header found.\n");
     printf("[+] Entry Point: 0x%lx\n", elf_hdr->e_entry);
 
-    // Parse Section Headers
+    // Parsing Section Headers
     if (elf_hdr->e_shnum > 0) {
         printf("\n[*] Parsing %d Section Headers via mmap()...\n", elf_hdr->e_shnum);
         printf("%-20s %-15s %-10s\n", "NAME", "FILE OFFSET", "SIZE (Bytes)");
@@ -52,16 +53,16 @@ int parse_elf_header(const char* filepath) {
         //Pointer arithmetic to find the start of the Section Header Table
         Elf64_Shdr* section_headers = (Elf64_Shdr*)(mapped_data + elf_hdr->e_shoff);
 
-        // Find the String Table to get the section names
+        // Finding the String Table to get the section names
         Elf64_Shdr* strtab_hdr = &section_headers[elf_hdr->e_shstrndx];
         const char* string_table = (const char*)(mapped_data + strtab_hdr->sh_offset);
 
-        // Loop through the array of section headers
+        // Looping through the array of section headers
         for (int i = 0; i < elf_hdr->e_shnum; i++) {
             Elf64_Shdr* shdr = &section_headers[i];
             const char* name = string_table + shdr->sh_name;
 
-            //Only print sections that actually contain data
+            //Only printing sections that actually contain data
             if (shdr->sh_size > 0) {
                 printf("%-20s 0x%-13lx %-10lu\n", name, shdr->sh_offset, shdr->sh_size);
             }
@@ -75,7 +76,7 @@ int parse_elf_header(const char* filepath) {
     return 0;
 }
 
-int dump_text_section(const char* filepath) {
+int disassemble_text_section(const char* filepath, InstructionCallback callback) {
     int fd = open(filepath, O_RDONLY);
     if (fd < 0) return -1;
 
@@ -88,48 +89,49 @@ int dump_text_section(const char* filepath) {
     Elf64_Shdr* strtab_hdr = &section_headers[elf_hdr->e_shstrndx];
     const char* string_table = (const char*)(mapped_data + strtab_hdr->sh_offset);
 
-    printf("\n[*] Searching for .text section...\n");
-
-    // Loop through sections to find ".text"
     for (int i = 0; i < elf_hdr->e_shnum; i++) {
         Elf64_Shdr* shdr = &section_headers[i];
         const char* name = string_table + shdr->sh_name;
 
         if (strcmp(name, ".text") == 0) {
-            printf("[+] Found .text section at offset 0x%lx (Size: %lu bytes)\n", 
-                   shdr->sh_offset, shdr->sh_size);
-            
-            // Set a pointer directly to the start of the machine code!
             uint8_t* text_code = mapped_data + shdr->sh_offset;
-
-            printf("[*] Hex dump of the first 64 bytes:\n\n");
             
-            // Print up to 64 bytes in a classic 16-byte grid format
-            int dump_size = (shdr->sh_size > 64) ? 64 : shdr->sh_size;
-            for (int j = 0; j < dump_size; j++) {
-                // Print the memory offset at the start of each line
-                if (j % 16 == 0) {
-                    printf("  0x%04x:  ", j);
-                }
-                
-                // Print the raw hex byte
-                printf("%02x ", text_code[j]);
-                
-                // Break to a new line every 16 bytes
-                if ((j + 1) % 16 == 0) {
-                    printf("\n");
-                }
+            printf("\n[*] Initializing Capstone Engine (x86_64)...\n");
+            
+            csh handle;
+            // Opening Capstone for x86 architecture, 64-bit mode
+            if (cs_open(CS_ARCH_X86, CS_MODE_64, &handle) != CS_ERR_OK) {
+                printf("[-] Error: Failed to initialize Capstone!\n");
+                return -1;
             }
-            printf("\n");
+
+            cs_insn *insn;
+            // Disassembling the first 64 bytes (to test)
+            // passing the virtual address (shdr->sh_addr) so the jump targets are calculated correctly!
+            size_t count = cs_disasm(handle, text_code, shdr->sh_size, shdr->sh_addr, 0, &insn);
             
-            // We found what we needed, clean up and exit
+            if (count > 0) {
+                printf("[+] Disassembly successful. Sending instructions to C++ Graph Engine...\n");
+                
+                for (size_t j = 0; j < count; j++) {
+                    // Instead of printing, we call the C++ function!
+                    if (callback != NULL) {
+                        callback(insn[j].address, insn[j].mnemonic, insn[j].op_str);
+                    }
+                }
+                
+                cs_free(insn, count);
+            }else {
+                printf("[-] Error: Failed to disassemble given code!\n");
+            }
+
+            cs_close(&handle);
             munmap(mapped_data, file_stat.st_size);
             close(fd);
             return 0;
         }
     }
 
-    printf("[-] Error: .text section not found in this binary.\n");
     munmap(mapped_data, file_stat.st_size);
     close(fd);
     return -1;
