@@ -57,7 +57,7 @@ Scipio is a student research project currently in development, aimed at explorin
 
 This repository serves as the foundation for my upcoming undergraduate engineering thesis. It is very much a learning exercise intended to deepen my understanding of system architectures, memory management, and graph theory.
 
-Currently, I am attempting to target a restricted subset of the [ARM64 / x86] architecture.
+Currently, I am attempting to target a restricted subset of the x86-64 architecture.
 
 Experimental Hybrid Architecture
 As part of my thesis research, I am experimenting with a hybrid C/C++ architecture to understand how to bridge low-level parsing with higher-level data structures:
@@ -100,24 +100,3 @@ LATER PLANS
 By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
 
 It would be nice to employ some algorithms for detecting malware. I think cfg can be represented in different forms that could be analyzed.
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
