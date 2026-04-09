@@ -75,6 +75,9 @@ exemplary output.pdf generated using Scipio
 
 <img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
 
+<img width="1857" height="769" alt="image" src="https://github.com/user-attachments/assets/47974aae-ba10-4d4e-8dfc-a11a633d77da" />
+
+
 ----------------------------------------
 
 MANUAL 
