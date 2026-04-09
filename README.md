@@ -75,6 +75,13 @@ Later Plans:
 
 By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
 
+OUTCOMES OF WORK
+
+exemplary output.pdf generated using Scipio
+
+<img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
+
+
 ----------------------------------------
 
 MANUAL 
