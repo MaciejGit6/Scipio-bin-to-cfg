@@ -71,13 +71,40 @@ Basic Block Generation: Implement an algorithm to scan the decoded instructions,
 
 Graph Construction: Connect these Basic Blocks dynamically to generate a mapped representation (CFG) of the program's execution paths, ideally outputting data that can be visualized later.
 
-Later Plans:
 
-By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
+OUTCOMES OF WORK
+
+exemplary output.pdf generated using Scipio
+
+<img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
 
 ----------------------------------------
 
 MANUAL 
+
+Intended usage:
+
+    $scipio <executable> <pdf_file>
+
+The fastest way to test it is to use scipio itself as the executable.
+
+Later Plans:
+
+(this is oversimplification) 
+By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
+
+
+
+
+  
+
+
+
+
+
+
+
+
 
 
 
