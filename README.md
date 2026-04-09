@@ -87,7 +87,9 @@ MANUAL
 
 Intended usage:
 
-  $scipio <executable> <pdf_file>
+    $scipio <executable> <pdf_file>
+
+
 
   
 
