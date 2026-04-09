@@ -3,5 +3,6 @@
 scipio
 
 # Output files
+*.pdf
 *.cfg
 *.svg
