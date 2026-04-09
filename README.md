@@ -50,7 +50,7 @@ after compiling use this command to make scipio accessible from any directory:
 
 
 
-DESCRIPTION
+##DESCRIPTION
 
 Scipio (Work in Progress)
 Scipio is a student research project currently in development, aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code to construct basic Control Flow Graphs (CFGs).
@@ -76,7 +76,7 @@ Basic Block Generation: Implement an algorithm to scan the decoded instructions,
 Graph Construction: Connect these Basic Blocks dynamically to generate a mapped representation (CFG) of the program's execution paths, ideally outputting data that can be visualized later.
 
 
-OUTCOMES OF WORK
+##OUTCOMES OF WORK
 
 exemplary output.pdf generated using Scipio
 
@@ -86,7 +86,7 @@ exemplary output.pdf generated using Scipio
 
 ----------------------------------------
 
-MANUAL 
+##MANUAL 
 
 Intended usage:
 
@@ -94,7 +94,7 @@ Intended usage:
 
 The fastest way to test it is to use scipio itself as the executable.
 
-LATER PLANS
+##LATER PLANS
 
 (this is oversimplification) 
 By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
