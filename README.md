@@ -98,10 +98,6 @@ It would be nice to employ some algorithms for detecting malware. I think cfg ca
 
 
 
-<img width="1857" height="769" alt="image" src="https://github.com/user-attachments/assets/47974aae-ba10-4d4e-8dfc-a11a633d77da" />
-
-
-
 
 
 
