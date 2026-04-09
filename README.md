@@ -1,7 +1,7 @@
 # Scipio-bin-to-cfg
 An educational binary analysis project exploring how to translate raw machine code into Control Flow Graphs (CFG) using C and C++
 
-..........                                       
+                           ..........            
                    --iiiii---------ii###ii-.                                 ####  
                .#00#i-.....---------......--i##-.                           ##     
                  .i#i#####000000000000##ii--. .-##i.                         ###   
@@ -39,7 +39,6 @@ An educational binary analysis project exploring how to translate raw machine co
                      i#00#011100#-.                                          ####  
                     .#00011#i-                                             
                       --..
-
 after compiling use this command to make scipio accessible from any directory:  
 
     $sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
