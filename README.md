@@ -48,9 +48,6 @@ after compiling use this command to make scipio accessible from any directory:
 
 ![Scipio in action](docs/assets/demo.gif)
 
-## Example Output
-
-![CFG Example](docs/assets/graph.svg)
 
 
 DESCRIPTION
