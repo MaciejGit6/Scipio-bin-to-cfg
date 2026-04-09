@@ -53,6 +53,7 @@ typedef struct {
 // ---------------------------------------------------------
 // Parses the ELF file using mmap() and prints the section layout
 int parse_elf_header(const char* filepath);
+int dump_text_section(const char* filepath);
 
 
 #ifdef __cplusplus
