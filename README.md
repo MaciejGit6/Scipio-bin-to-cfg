@@ -1,6 +1,8 @@
 # Scipio-bin-to-cfg
-An educational binary analysis project exploring how to translate raw machine code into Control Flow Graphs (CFG) using C and C++
 
+An educational binary analysis tool exploring how to translate raw machine code into Control Flow Graphs (CFG), written in hybrid C/C++. Built as the foundation for my undergraduate engineering thesis.
+
+```
                            ..........            
                    --iiiii---------ii###ii-.                                 ####  
                .#00#i-.....---------......--i##-.                           ##     
@@ -39,64 +41,71 @@ An educational binary analysis project exploring how to translate raw machine co
                      i#00#011100#-.                                          ####  
                     .#00011#i-                                             
                       --..
-after compiling use this command to make scipio accessible from any directory:  
-
-    $sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
-
+```
 
 ## Demo
 
 ![Scipio in action](docs/assets/demo.gif)
 
+## Description
 
+Scipio is a student research project aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code and constructing basic Control Flow Graphs (CFGs) from it.
 
-## DESCRIPTION
+This repository serves as the foundation for my upcoming undergraduate engineering thesis — a learning exercise to deepen my understanding of system architectures, memory management, and graph theory. Currently targeting a restricted subset of the x86-64 architecture.
 
-Scipio (Work in Progress)
-Scipio is a student research project currently in development, aimed at exploring the fundamentals of binary analysis and reverse engineering. The primary goal is to build a proof-of-concept tool capable of decoding raw machine code to construct basic Control Flow Graphs (CFGs).
+## Hybrid Architecture
 
-This repository serves as the foundation for my upcoming undergraduate engineering thesis. It is very much a learning exercise intended to deepen my understanding of system architectures, memory management, and graph theory.
+As part of my thesis research, I'm experimenting with a hybrid C/C++ design to understand how to bridge low-level parsing with higher-level data structures:
 
-Currently, I am attempting to target a restricted subset of the x86-64 architecture.
+**The C Component (Binary Parsing)** — Raw binary parsing (ELF headers) and bitwise opcode decoding is written in pure C. The goal is to handle raw bytes, pointer arithmetic, and memory allocation without modern abstractions.
 
-Experimental Hybrid Architecture
-As part of my thesis research, I am experimenting with a hybrid C/C++ architecture to understand how to bridge low-level parsing with higher-level data structures:
+**The C++ Component (Graph Modeling)** — Once instructions are decoded, they are passed into a C++ engine that uses the STL and RAII to manage the complexity of building CFG nodes and edges — preventing the memory leaks I would likely introduce if I built the graph entirely in C.
 
-The C Component (Binary Parsing): I am writing the raw binary parsing (ELF/PE headers) and bitwise opcode decoding in pure C. The goal here is to learn how to handle raw bytes, pointer arithmetic, and memory allocation without relying on modern abstractions.
+## Build
 
-The C++ Component (Graph Modeling): Once the instructions are decoded, they are passed into a C++ engine. I am using C++ (specifically the Standard Template Library and RAII) to manage the complexity of building the nodes and edges of the Control Flow Graph, which helps prevent the memory leaks I would likely introduce if I built the graph entirely in C.
+```bash
+make
+```
 
-Project Milestones
-The current roadmap for the thesis involves three main phases:
+After building, make Scipio accessible from any directory:
 
-The Decoder: Write a basic parser that can open an executable binary, locate the .text section, and decode a limited subset of hardware-specific opcodes into a readable format.
+```bash
+sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
+```
 
-Basic Block Generation: Implement an algorithm to scan the decoded instructions, identifying branching logic (jumps, calls, returns) to group the code into sequential Basic Blocks.
+## Usage
 
-Graph Construction: Connect these Basic Blocks dynamically to generate a mapped representation (CFG) of the program's execution paths, ideally outputting data that can be visualized later.
+```bash
+scipio <executable> <output.cfg>
+```
 
+The fastest way to test it is to run Scipio on itself:
 
-## OUTCOMES OF WORK
+```bash
+scipio scipio out.cfg
+```
 
-Running `scipio scipio out.cfg` on itself produces this CFG visualization:
+## Example Output
+
+Running Scipio on itself produces this CFG visualization (only a small fragment of the full graph):
 
 <img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
 
-(only a small fragment of a huge file)
+## Project Milestones
 
-----------------------------------------
+**The Decoder** — A parser that opens an executable binary, locates the `.text` section, and decodes a subset of x86-64 opcodes into a readable format.
 
-## MANUAL 
+**Basic Block Generation** — Scans decoded instructions and identifies branching logic (jumps, calls, returns) to group code into sequential Basic Blocks.
 
-Intended usage:
+**Graph Construction** — Connects Basic Blocks dynamically to generate a mapped representation of the program's execution paths, exported to Graphviz DOT format for visualization.
 
-    $scipio <executable> <cfg_file>
+## Later Plans
 
-The fastest way to test it is to use scipio itself as the executable.
+By representing the CFG as an adjacency matrix and computing its eigenvalues, it should be possible to spot structural similarities between different binaries — if two executables produce matrices with equal eigenvalues, one is likely a modified variant of the other. The long-term goal is to use this as a foundation for malware detection.
 
-## LATER PLANS
+## Dependencies
 
-(this is oversimplification) 
-By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
-
-It would be nice to employ some algorithms for detecting malware. I think cfg can be represented in different forms that could be analyzed.
+- Linux x86_64
+- GCC / G++
+- [Capstone](https://www.capstone-engine.org/) disassembly framework (`sudo apt install libcapstone-dev`)
+- [Graphviz](https://graphviz.org/) for SVG rendering (`sudo apt install graphviz`)
