@@ -88,10 +88,15 @@ Intended usage:
 
 The fastest way to test it is to use scipio itself as the executable.
 
-Later Plans:
+LATER PLANS
 
 (this is oversimplification) 
 By creating an adjacency matrix of CFG and calculating its eigenvalues we can spot similarities between different analyzed binaries and conclude that currently analyzed executable is in fact a modified version of already known/iddentified malware (equality of eigenvalues).
+
+It would be nice to employ some algorithms for detecting malware. I think cfg can be represented in different forms that could be analyzed.
+
+
+
 
 
 
