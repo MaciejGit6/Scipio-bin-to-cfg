@@ -81,10 +81,18 @@ exemplary output.pdf generated using Scipio
 
 <img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
 
-
 ----------------------------------------
 
 MANUAL 
+
+Intended usage:
+
+  $scipio <executable> <pdf_file>
+
+  
+
+
+
 
 
 
