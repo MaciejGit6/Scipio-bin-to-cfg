@@ -90,7 +90,7 @@ exemplary output.pdf generated using Scipio
 
 Intended usage:
 
-    $scipio <executable> <pdf_file>
+    $scipio <executable> <cfg_file>
 
 The fastest way to test it is to use scipio itself as the executable.
 
