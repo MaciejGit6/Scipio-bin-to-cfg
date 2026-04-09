@@ -77,6 +77,7 @@ By creating an adjacency matrix of CFG and calculating its eigenvalues we can sp
 
 ----------------------------------------
 
+MANUAL 
 
 
 
