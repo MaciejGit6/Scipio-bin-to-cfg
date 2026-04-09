@@ -43,6 +43,16 @@ after compiling use this command to make scipio accessible from any directory:
 
     $sudo ln -s $(pwd)/scipio /usr/local/bin/scipio
 
+
+## Demo
+
+![Scipio in action](docs/assets/demo.gif)
+
+## Example Output
+
+![CFG Example](docs/assets/graph.svg)
+
+
 DESCRIPTION
 
 Scipio (Work in Progress)
