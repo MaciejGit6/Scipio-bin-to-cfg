@@ -78,7 +78,7 @@ Graph Construction: Connect these Basic Blocks dynamically to generate a mapped 
 
 ## OUTCOMES OF WORK
 
-exemplary output.pdf generated using Scipio
+Running `scipio scipio out.cfg` on itself produces this CFG visualization:
 
 <img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
 
