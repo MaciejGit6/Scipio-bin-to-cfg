@@ -64,7 +64,7 @@ As part of my thesis research, I'm experimenting with a hybrid C/C++ design to u
 
 **The C++ Component (Graph Modeling)** — Once instructions are decoded, they are passed into a C++ engine that uses the STL and RAII to manage the complexity of building CFG nodes and edges — preventing the memory leaks I would likely introduce if I built the graph entirely in C.
 
-**The Rust Component (Graph Analysis)** 
+**The Rust Component (Graph Analysis)** - Not implemented yet
 
 ## Build
 
