@@ -104,6 +104,8 @@ Running Scipio on itself produces this CFG visualization (only a small fragment 
 
 By representing the CFG as an adjacency matrix and computing its eigenvalues, it should be possible to spot structural similarities between different binaries — if two executables produce matrices with equal eigenvalues, one is likely a modified variant of the other. The long-term goal is to use this as a foundation for malware detection.
 
+I am interested in reimplementing some part or implementing a new part of this project in Rust due to its safety and recent popularity. 
+
 ## Dependencies
 
 - Linux x86_64
