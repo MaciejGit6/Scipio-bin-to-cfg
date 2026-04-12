@@ -57,10 +57,7 @@ This repository serves as the foundation for my upcoming undergraduate engineeri
 
 As part of my thesis research, I'm experimenting with a hybrid C/C++ design to understand how to bridge low-level parsing with higher-level data structures:
 
-<img width="834" height="531" alt="image" src="https://github.com/user-attachments/assets/65e65c14-8015-4cc3-8d18-ce6281198ede" />
-
 <img width="1440" height="900" alt="image" src="https://github.com/user-attachments/assets/719819c8-73ba-4848-8878-465352d5ca10" />
-
 
 
 **The C Component (Binary Parsing)** — Raw binary parsing (ELF headers) and bitwise opcode decoding is written in pure C. The goal is to handle raw bytes, pointer arithmetic, and memory allocation without modern abstractions.
