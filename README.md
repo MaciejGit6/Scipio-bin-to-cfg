@@ -89,7 +89,8 @@ scipio scipio out.cfg
 
 Running Scipio on itself produces this CFG visualization (only a small fragment of the full graph):
 
-<img width="1871" height="778" alt="image" src="https://github.com/user-attachments/assets/440def56-a043-4dc7-a26c-fa54a543f5a9" />
+<img width="1706" height="722" alt="image" src="https://github.com/user-attachments/assets/e80dfe39-d761-4e58-8159-c425cbc36a95" />
+
 
 ## Project Milestones
 
