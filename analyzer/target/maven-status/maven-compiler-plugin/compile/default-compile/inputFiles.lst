@@ -1,1 +1,5 @@
+/home/milewskim/2026/May/Scipio-bin-to-cfg/analyzer/src/main/java/scipio/analyzer/model/CFGGraph.java
+/home/milewskim/2026/May/Scipio-bin-to-cfg/analyzer/src/main/java/scipio/analyzer/parser/DotParser.java
 /home/milewskim/2026/May/Scipio-bin-to-cfg/analyzer/src/main/java/scipio/analyzer/Main.java
+/home/milewskim/2026/May/Scipio-bin-to-cfg/analyzer/src/main/java/scipio/analyzer/model/CFGNode.java
+/home/milewskim/2026/May/Scipio-bin-to-cfg/analyzer/src/main/java/scipio/analyzer/report/ReportGenerator.java
