@@ -1,1 +1,3 @@
+scipio/analyzer/model/CFGNode.class
 scipio/analyzer/Main.class
+scipio/analyzer/model/CFGGraph.class
