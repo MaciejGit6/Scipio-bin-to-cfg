@@ -10,44 +10,46 @@
 #include <memory>
 #include "cfg.hpp"
 
+
+
 std::unique_ptr<CFG> graph_engine = nullptr;
 std::shared_ptr<BasicBlock> current_block = nullptr;
+uint64_t pending_fallthrough = 0;
 
 
 extern "C" void instruction_receiver(uint64_t address, const char* mnemonic, const char* operands) {
-    // If we don't have an active block, create one at the current address
+
     if (current_block == nullptr) {
         current_block = graph_engine->get_or_create_block(address);
+
+        if (pending_fallthrough != 0) {
+            graph_engine->add_edge(pending_fallthrough, address);
+            pending_fallthrough = 0;
+        }
     }
 
-    // Add the instruction to the block
     current_block->add_instruction(address, mnemonic, operands);
 
-    // --- THE BLOCK SPLITTER LOGIC ---
     std::string mnem(mnemonic);
     std::string ops(operands);
 
-    // Is this a branch/jump instruction? 
-    // (Starts with 'j', or is 'call', or is 'ret')
     bool is_branch = (mnem[0] == 'j' || mnem == "call" || mnem == "ret");
 
     if (is_branch) {
-        // If it jumps to a specific hex address, extract it and create an edge!
         size_t hex_pos = ops.find("0x");
         if (hex_pos != std::string::npos) {
             try {
-                // Convert the hex string to an actual integer
                 uint64_t target_addr = std::stoull(ops.substr(hex_pos), nullptr, 16);
-                
-                // Add the edge to the Adjacency Matrix
                 graph_engine->add_edge(current_block->start_address, target_addr);
-            } catch (...) {
-                // Ignore parsing errors (e.g., if the jump is to a register like `call rax`)
-            }
+            } catch (...) {}
         }
 
-        // Close the block! The NEXT instruction will trigger the creation of a new BasicBlock.
-        current_block = nullptr; 
+        bool is_conditional = (mnem[0] == 'j' && mnem != "jmp");
+        if (is_conditional) {
+            pending_fallthrough = current_block->start_address;
+        }
+
+        current_block = nullptr;
     }
 }
 
