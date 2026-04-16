@@ -22,6 +22,10 @@ typedef struct{
     uint64_t target;
 } DecodedInsn;
 
+DecodedInsn decode_instruction(uint64_t address,
+                               const char* mnemonic,
+                               const char* operands);
+
 #ifdef __cplusplus
 }
 #endif
