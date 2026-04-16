@@ -34,3 +34,26 @@ static uint64_t extract_branch_target(const char* operands) {
 
     return target;
 }
+
+
+DecodedInsn decode_instruction(uint64_t address,
+                               const char* mnemonic,
+                               const char* operands)
+{
+    DecodedInsn out;
+    out.address = address;
+    out.type    = classify_instruction(mnemonic);
+    out.target  = 0;
+
+    strncpy(out.mnemonic, mnemonic, sizeof(out.mnemonic) - 1);
+    out.mnemonic[sizeof(out.mnemonic) - 1] = '\0';
+
+    strncpy(out.operands, operands, sizeof(out.operands) - 1);
+    out.operands[sizeof(out.operands) - 1] = '\0';
+
+  
+    if (out.type != INSN_NORMAL)
+        out.target = extract_branch_target(operands);
+
+    return out;
+}
