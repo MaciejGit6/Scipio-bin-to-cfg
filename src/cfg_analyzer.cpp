@@ -79,3 +79,17 @@ AnalysisReport CFGAnalyzer::analyze() const{
 
     return report;
 }
+
+
+const BasicBlock* CFG::get_block(uint64_t address) const {
+    auto it = blocks.find(address);
+    return (it != blocks.end()) ? it->second.get() : nullptr;
+}
+
+std::vector<uint64_t> CFG::all_block_addresses() const {
+    std::vector<uint64_t> addrs;
+    addrs.reserve(blocks.size());
+    for (const auto& [addr, _] : blocks) 
+        addrs.push_back(addr);
+    return addrs;
+}
