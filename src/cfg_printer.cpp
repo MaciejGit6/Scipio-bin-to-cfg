@@ -77,3 +77,39 @@ void CFGPrinter::export_annotated_dot(const std::string& filename) const {
     out << "}\n";
     std::cout << "[+] Annotated graph written to: " << filename << "\n";
 }
+
+void CFGPrinter::print_ascii_summary() const {
+    constexpr int BAR_MAX = 40;
+
+    // find the largest block so we can scale bars
+    int max_insns = 1;
+    for (uint64_t addr : cfg_.all_block_addresses()) {
+        const BasicBlock* b = cfg_.get_block(addr);
+        if (b) max_insns = std::max(max_insns, (int)b->instructions.size());
+    }
+
+    std::cout << "\n[*] Block size distribution\n";
+    std::cout << "    " << std::string(BAR_MAX + 20, '-') << "\n";
+
+    for (uint64_t addr : report_.reachable_blocks) {
+        const BasicBlock* b = cfg_.get_block(addr);
+        if (!b) continue;
+
+        int bar_len = (b->instructions.size() * BAR_MAX) / max_insns;
+        bar_len = std::max(bar_len, 1);
+
+        std::cout << "    0x" << std::hex << std::setw(8) << addr << "  |"
+                  << std::string(bar_len, '#')
+                  << std::string(BAR_MAX - bar_len, ' ')
+                  << "| " << std::dec << b->instructions.size() << "\n";
+    }
+
+    if (!report_.unreachable_blocks.empty()) {
+        std::cout << "\n    [dead code]\n";
+        for (uint64_t addr : report_.unreachable_blocks)
+            std::cout << "    0x" << std::hex << addr << "  |"
+                      << std::string(BAR_MAX, 'x') << "| unreachable\n";
+    }
+
+    std::cout << "    " << std::string(BAR_MAX + 20, '-') << "\n";
+}
