@@ -48,3 +48,34 @@ std_unordered_set<uint64_t> CFGAnalyzer::dfs_back_edges() const{
     dfs(entry_);
     return loop_headers;
 }
+
+AnalysisReport CFGAnalyzer::analyze() const{
+    AnalysisReport report;
+
+    auto reachable = bfs_reachable = bfs_reachable();
+    auto back_targets = dfs_back_edges();
+
+    auto all_blocks = cfg_.all_block_addresses();
+
+    report.block_count = static_cast<int>(all_blocks.size());
+
+    for(uint64_t addr : all_blocks){
+        auto block = cfg_.get_block(addr);
+        if(block)
+            report.edge_count += static_cast<int>(block->successors.size());
+
+
+    }
+    report.cyclomatic_complexity = report.edge_count - report.block_count + 2;
+
+    for (uint64_t addr : all_blocks) {
+        if (reachable.count(addr))
+            report.reachable_blocks.push_back(addr);
+        else
+            report.unreachable_blocks.push_back(addr);
+    }
+
+    report.loop_headers.assign(back_targets.begin(), back_targets.end());
+
+    return report;
+}
