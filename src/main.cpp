@@ -9,6 +9,7 @@
 
 #include <memory>
 #include "cfg.hpp"
+#include "decoder.h"
 
 
 
@@ -17,37 +18,29 @@ std::shared_ptr<BasicBlock> current_block = nullptr;
 uint64_t pending_fallthrough = 0;
 
 
-extern "C" void instruction_receiver(uint64_t address, const char* mnemonic, const char* operands) {
+
+
+extern "C" void instruction_receiver(uint64_t address,
+                                     const char* mnemonic,
+                                     const char* operands) {
+    DecodedInsn insn = decode_instruction(address, mnemonic, operands);
 
     if (current_block == nullptr) {
-        current_block = graph_engine->get_or_create_block(address);
-
+        current_block = graph_engine->get_or_create_block(insn.address);
         if (pending_fallthrough != 0) {
-            graph_engine->add_edge(pending_fallthrough, address);
+            graph_engine->add_edge(pending_fallthrough, insn.address);
             pending_fallthrough = 0;
         }
     }
 
-    current_block->add_instruction(address, mnemonic, operands);
+    current_block->add_instruction(insn.address, insn.mnemonic, insn.operands);
 
-    std::string mnem(mnemonic);
-    std::string ops(operands);
+    if (insn.type != INSN_NORMAL) {
+        if (insn.target != 0)
+            graph_engine->add_edge(current_block->start_address, insn.target);
 
-    bool is_branch = (mnem[0] == 'j' || mnem == "call" || mnem == "ret");
-
-    if (is_branch) {
-        size_t hex_pos = ops.find("0x");
-        if (hex_pos != std::string::npos) {
-            try {
-                uint64_t target_addr = std::stoull(ops.substr(hex_pos), nullptr, 16);
-                graph_engine->add_edge(current_block->start_address, target_addr);
-            } catch (...) {}
-        }
-
-        bool is_conditional = (mnem[0] == 'j' && mnem != "jmp");
-        if (is_conditional) {
+        if (insn.type == INSN_BRANCH_CONDITIONAL)
             pending_fallthrough = current_block->start_address;
-        }
 
         current_block = nullptr;
     }
