@@ -129,10 +129,10 @@ int main(int argc, char* argv[]) {
        
         graph_engine->export_to_dot(output_file);
 
-        CFGAnalyzer analyzer(*graph_engine, entry_point);
+        CFGAnalyzer analyzer(*graph_engine, graph_engine->get_entry());
         auto report = analyzer.analyze();
 
-        std::cout << "\n[*] CFG Analysis Report\n";
+        std::cout << "\n[*] CFG Analysis Report\n"; 
         std::cout << "    Blocks            : " << report.block_count << "\n";
         std::cout << "    Edges             : " << report.edge_count << "\n";
         std::cout << "    Cyclomatic Cmplx  : " << report.cyclomatic_complexity << "\n";

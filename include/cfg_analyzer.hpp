@@ -21,15 +21,15 @@ public:
     explicit CFGAnalyzer(const CFG& cfg, uint64_t entry);
 
     [[nodiscard]] AnalysisReport analyze() const;
+    
+    
 private: 
     const CFG& cfg_;
     uint64_t entry_;
 
-    std::unordered_set<uint64_t> bfd_reachable() const;
+    std::unordered_set<uint64_t> bfs_reachable() const;
     std::unordered_set<uint64_t> dfs_back_edges() const;
 
-}
+};
 
 
-const BasicBlock* get_block(uint64_t address) const;
-std::vector<uint64_t> all_block_addresses() const;

@@ -14,8 +14,8 @@ TARGET = scipio
 PREFIX = /usr/local/bin
 
 # Source and Object Files
-C_SRCS = $(wildcard src/decoder/*.c)
-CXX_SRCS = $(wildcard src/graph/*.cpp) src/main.cpp
+C_SRCS = $(shell find src -type f -name '*.c')
+CXX_SRCS = $(shell find src -type f -name '*.cpp')
 
 C_OBJS = $(C_SRCS:.c=.o)
 CXX_OBJS = $(CXX_SRCS:.cpp=.o)

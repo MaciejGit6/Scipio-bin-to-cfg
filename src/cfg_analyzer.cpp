@@ -1,5 +1,10 @@
 #include "cfg_analyzer.hpp"
 #include <queue>
+#include <functional>
+
+CFGAnalyzer::CFGAnalyzer(const CFG& cfg, uint64_t entry) 
+    : cfg_(cfg), entry_(entry) {
+}
 
 std::unordered_set<uint64_t> CFGAnalyzer::bfs_reachable() const{
     std::unordered_set<uint64_t> visited;
@@ -23,7 +28,7 @@ std::unordered_set<uint64_t> CFGAnalyzer::bfs_reachable() const{
     return visited;
 }
 
-std_unordered_set<uint64_t> CFGAnalyzer::dfs_back_edges() const{
+std::unordered_set<uint64_t> CFGAnalyzer::dfs_back_edges() const{
     std::unordered_set<uint64_t> grey, black, loop_headers;
 
     std::function<void(uint64_t)> dfs = [&](uint64_t addr){
@@ -52,7 +57,7 @@ std_unordered_set<uint64_t> CFGAnalyzer::dfs_back_edges() const{
 AnalysisReport CFGAnalyzer::analyze() const{
     AnalysisReport report;
 
-    auto reachable = bfs_reachable = bfs_reachable();
+    auto reachable = bfs_reachable();
     auto back_targets = dfs_back_edges();
 
     auto all_blocks = cfg_.all_block_addresses();

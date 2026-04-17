@@ -8,14 +8,18 @@
 
 class CFG {
 private:
-    // The core matrix: Maps a starting memory address to its BasicBlock
+    
     std::unordered_map<uint64_t, std::shared_ptr<BasicBlock>> blocks;
     
-    // The entry point of the function being analyzed
+    
     uint64_t entry_address;
 
 public:
-    // Constructor requires the starting address of the function/binary
+
+    const BasicBlock* get_block(uint64_t address) const;
+    std::vector<uint64_t> all_block_addresses() const;
+    uint64_t get_entry() const { return entry_address; }
+        
     CFG(uint64_t entry) : entry_address(entry) {}
 
     // Core Graph Operations
