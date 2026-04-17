@@ -10,6 +10,7 @@
 #include <memory>
 #include "cfg.hpp"
 #include "decoder.h"
+#include "cfg_analyzer.hpp"
 
 
 
@@ -119,19 +120,34 @@ int main(int argc, char* argv[]) {
 
     if (parse_elf_header(input_file.c_str()) == 0) {
         
-        // 3. Initialize the CFG (We will assume entry is 0 for now)
+        
         graph_engine = std::make_unique<CFG>(0);
 
-        // 4. Run the C decoder, passing our C++ receiver function!
+        
         disassemble_text_section(input_file.c_str(), instruction_receiver);
 
-        // 5. Export the populated graph to a .dot file
+       
         graph_engine->export_to_dot(output_file);
 
-        // 6. Automatically generate the PDF file
+        CFGAnalyzer analyzer(*graph_engine, entry_point);
+        auto report = analyzer.analyze();
+
+        std::cout << "\n[*] CFG Analysis Report\n";
+        std::cout << "    Blocks            : " << report.block_count << "\n";
+        std::cout << "    Edges             : " << report.edge_count << "\n";
+        std::cout << "    Cyclomatic Cmplx  : " << report.cyclomatic_complexity << "\n";
+        std::cout << "    Dead blocks       : " << report.unreachable_blocks.size() << "\n";
+
+        if (!report.loop_headers.empty()) {
+            std::cout << "    Loop headers      : ";
+            for (uint64_t addr : report.loop_headers)
+                std::cout << std::hex << "0x" << addr << " ";
+            std::cout << "\n";
+        }
+       
         std::cout << "[*] Running Graphviz to generate PDF...\n";
         
-        // Figure out the PDF filename (replace .cfg with .pdf)
+       
         std::string pdf_file = output_file;
         size_t dot_pos = pdf_file.find_last_of('.');
         if (dot_pos != std::string::npos) {
@@ -140,10 +156,10 @@ int main(int argc, char* argv[]) {
             pdf_file += ".pdf";
         }
 
-        // Construct the terminal command (-Tpdf instead of -Tsvg)
+        
         std::string command = "dot -Tpdf " + output_file + " -o " + pdf_file;
         
-        // Execute the command in the Linux shell
+        
         int result = std::system(command.c_str());
         
         if (result == 0) {
