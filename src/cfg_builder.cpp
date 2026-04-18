@@ -1,7 +1,6 @@
 #include "cfg_builder.hpp"
 
 CFGBuilder::CFGBuilder(uint64_t entry) : entry_(entry) {
-   
     leaders_.insert(entry);
 }
 
@@ -11,19 +10,17 @@ void CFGBuilder::ingest(uint64_t address, const char* mnemonic, const char* oper
 
 CFG CFGBuilder::build() {
     collect_leaders();
-
     CFG cfg(entry_);
     assign_blocks(cfg);
-    return cfg;  // NRVO
+    return cfg;
 }
 
 void CFGBuilder::collect_leaders() {
     for (size_t i = 0; i < instructions_.size(); i++) {
         const DecodedInsn& insn = instructions_[i];
 
-        if (insn.type == INSN_NORMAL) continue;
+        if (insn.type == INSN_NORMAL || insn.type == INSN_CALL) continue;
 
-    
         if (insn.target != 0)
             leaders_.insert(insn.target);
 
@@ -42,10 +39,8 @@ void CFGBuilder::assign_blocks(CFG& cfg) const {
         const DecodedInsn& insn = instructions_[i];
 
         if (leaders_.count(insn.address)) {
-            if (current != nullptr) {
-  
+            if (current != nullptr)
                 cfg.add_edge(current->start_address, insn.address);
-            }
             current = cfg.get_or_create_block(insn.address);
         }
 
@@ -54,7 +49,7 @@ void CFGBuilder::assign_blocks(CFG& cfg) const {
 
         current->add_instruction(insn.address, insn.mnemonic, insn.operands);
 
-        if (insn.type != INSN_NORMAL) {
+        if (insn.type != INSN_NORMAL && insn.type != INSN_CALL) {
             if (insn.target != 0)
                 cfg.add_edge(current->start_address, insn.target);
             current = nullptr;
