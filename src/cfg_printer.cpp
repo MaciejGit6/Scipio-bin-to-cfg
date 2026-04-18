@@ -1,5 +1,15 @@
 #include "cfg_printer.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <algorithm>
+#include "cfg_printer.hpp"
+#include <algorithm>
+
+CFGPrinter::CFGPrinter(const CFG& cfg, const AnalysisReport& report, uint64_t entry)
+    : cfg_(cfg), report_(report), entry_(entry)
+{}
 
 std::string CFGPrinter::node_style(uint64_t addr) const {
     if (addr == entry_)
@@ -80,6 +90,7 @@ void CFGPrinter::export_annotated_dot(const std::string& filename) const {
 
 void CFGPrinter::print_ascii_summary() const {
     constexpr int BAR_MAX = 40;
+    constexpr int MAX_SHOWN = 30;
 
     // find the largest block so we can scale bars
     int max_insns = 1;
@@ -91,7 +102,15 @@ void CFGPrinter::print_ascii_summary() const {
     std::cout << "\n[*] Block size distribution\n";
     std::cout << "    " << std::string(BAR_MAX + 20, '-') << "\n";
 
+    int shown = 0;
     for (uint64_t addr : report_.reachable_blocks) {
+        if (shown >= MAX_SHOWN) {
+            std::cout << "    ... and "
+                    << (report_.reachable_blocks.size() - MAX_SHOWN)
+                    << " more\n";
+            break;
+        }
+
         const BasicBlock* b = cfg_.get_block(addr);
         if (!b) continue;
 
@@ -99,16 +118,16 @@ void CFGPrinter::print_ascii_summary() const {
         bar_len = std::max(bar_len, 1);
 
         std::cout << "    0x" << std::hex << std::setw(8) << addr << "  |"
-                  << std::string(bar_len, '#')
-                  << std::string(BAR_MAX - bar_len, ' ')
-                  << "| " << std::dec << b->instructions.size() << "\n";
+                << std::string(bar_len, '#')
+                << std::string(BAR_MAX - bar_len, ' ')
+                << "| " << std::dec << b->instructions.size() << "\n";
+        shown++;
     }
 
     if (!report_.unreachable_blocks.empty()) {
-        std::cout << "\n    [dead code]\n";
-        for (uint64_t addr : report_.unreachable_blocks)
-            std::cout << "    0x" << std::hex << addr << "  |"
-                      << std::string(BAR_MAX, 'x') << "| unreachable\n";
+        std::cout << "\n    [dead code: "
+                << report_.unreachable_blocks.size()
+                << " unreachable blocks]\n";
     }
 
     std::cout << "    " << std::string(BAR_MAX + 20, '-') << "\n";

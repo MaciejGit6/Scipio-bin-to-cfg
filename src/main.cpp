@@ -11,6 +11,7 @@
 #include "cfg.hpp"
 #include "decoder.h"
 #include "cfg_analyzer.hpp"
+#include "cfg_printer.hpp"
 
 
 
@@ -121,16 +122,17 @@ int main(int argc, char* argv[]) {
     if (parse_elf_header(input_file.c_str()) == 0) {
         
         
-        graph_engine = std::make_unique<CFG>(0);
+        uint64_t entry = get_elf_entry(input_file.c_str());
+        graph_engine = std::make_unique<CFG>(entry);
 
         
         disassemble_text_section(input_file.c_str(), instruction_receiver);
 
        
-        graph_engine->export_to_dot(output_file);
-
         CFGAnalyzer analyzer(*graph_engine, graph_engine->get_entry());
         auto report = analyzer.analyze();
+
+        
 
         std::cout << "\n[*] CFG Analysis Report\n"; 
         std::cout << "    Blocks            : " << report.block_count << "\n";
@@ -144,6 +146,10 @@ int main(int argc, char* argv[]) {
                 std::cout << std::hex << "0x" << addr << " ";
             std::cout << "\n";
         }
+
+        CFGPrinter printer(*graph_engine, report, graph_engine->get_entry());
+        printer.export_annotated_dot(output_file);
+        printer.print_ascii_summary();
        
         std::cout << "[*] Running Graphviz to generate PDF...\n";
         

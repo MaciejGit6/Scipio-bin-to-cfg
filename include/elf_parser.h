@@ -52,6 +52,9 @@ typedef struct {
 // Function Prototypes
 // ---------------------------------------------------------
 // Parses the ELF file using mmap() and prints the section layout
+
+uint64_t get_elf_entry(const char* filepath);
+
 int parse_elf_header(const char* filepath);
 // Define a function pointer type for the C++ callback
 typedef void (*InstructionCallback)(uint64_t address, const char* mnemonic, const char* operands);

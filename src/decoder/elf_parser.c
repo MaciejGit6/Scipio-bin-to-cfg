@@ -1,6 +1,7 @@
 #include "elf_parser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>      
 #include <sys/mman.h>   
 #include <sys/stat.h>   
@@ -135,4 +136,21 @@ int disassemble_text_section(const char* filepath, InstructionCallback callback)
     munmap(mapped_data, file_stat.st_size);
     close(fd);
     return -1;
+}
+
+uint64_t get_elf_entry(const char* filepath) {
+    int fd = open(filepath, O_RDONLY);
+    if (fd < 0) return 0;
+
+    struct stat st;
+    fstat(fd, &st);
+    uint8_t* data = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (data == MAP_FAILED) { close(fd); return 0; }
+
+    Elf64_Ehdr* hdr = (Elf64_Ehdr*)data;
+    uint64_t entry = hdr->e_entry;
+
+    munmap(data, st.st_size);
+    close(fd);
+    return entry;
 }
