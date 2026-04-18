@@ -34,3 +34,30 @@ void CFGBuilder::collect_leaders() {
             leaders_.insert(instructions_[i + 1].address);
     }
 }
+
+void CFGBuilder::assign_blocks(CFG& cfg) const {
+    std::shared_ptr<BasicBlock> current = nullptr;
+
+    for (size_t i = 0; i < instructions_.size(); i++) {
+        const DecodedInsn& insn = instructions_[i];
+
+        if (leaders_.count(insn.address)) {
+            if (current != nullptr) {
+  
+                cfg.add_edge(current->start_address, insn.address);
+            }
+            current = cfg.get_or_create_block(insn.address);
+        }
+
+        if (current == nullptr)
+            current = cfg.get_or_create_block(insn.address);
+
+        current->add_instruction(insn.address, insn.mnemonic, insn.operands);
+
+        if (insn.type != INSN_NORMAL) {
+            if (insn.target != 0)
+                cfg.add_edge(current->start_address, insn.target);
+            current = nullptr;
+        }
+    }
+}
