@@ -6,6 +6,7 @@
 #include <limits.h>  // Required for PATH_MAX
 #include <cstdlib>
 #include "elf_parser.h"
+#include "cfg_builder.hpp"
 
 #include <memory>
 #include "cfg.hpp"
@@ -15,38 +16,18 @@
 
 
 
-std::unique_ptr<CFG> graph_engine = nullptr;
-std::shared_ptr<BasicBlock> current_block = nullptr;
-uint64_t pending_fallthrough = 0;
-
-
-
+std::unique_ptr<CFGBuilder> builder = nullptr;
 
 extern "C" void instruction_receiver(uint64_t address,
                                      const char* mnemonic,
                                      const char* operands) {
-    DecodedInsn insn = decode_instruction(address, mnemonic, operands);
-
-    if (current_block == nullptr) {
-        current_block = graph_engine->get_or_create_block(insn.address);
-        if (pending_fallthrough != 0) {
-            graph_engine->add_edge(pending_fallthrough, insn.address);
-            pending_fallthrough = 0;
-        }
-    }
-
-    current_block->add_instruction(insn.address, insn.mnemonic, insn.operands);
-
-    if (insn.type != INSN_NORMAL) {
-        if (insn.target != 0)
-            graph_engine->add_edge(current_block->start_address, insn.target);
-
-        if (insn.type == INSN_BRANCH_CONDITIONAL)
-            pending_fallthrough = current_block->start_address;
-
-        current_block = nullptr;
-    }
+    builder->ingest(address, mnemonic, operands);
 }
+
+
+
+
+
 
 
 void print_banner() {
@@ -120,21 +101,18 @@ int main(int argc, char* argv[]) {
     std::cout << "[*] Initializing Scipio Engine...\n\n";
 
     if (parse_elf_header(input_file.c_str()) == 0) {
-        
-        
-        uint64_t entry = get_elf_entry(input_file.c_str());
-        graph_engine = std::make_unique<CFG>(entry);
 
-        
+        uint64_t entry = get_elf_entry(input_file.c_str());
+        builder = std::make_unique<CFGBuilder>(entry);
+
         disassemble_text_section(input_file.c_str(), instruction_receiver);
 
-       
-        CFGAnalyzer analyzer(*graph_engine, graph_engine->get_entry());
+        auto graph = builder->build();
+
+        CFGAnalyzer analyzer(graph, entry);
         auto report = analyzer.analyze();
 
-        
-
-        std::cout << "\n[*] CFG Analysis Report\n"; 
+        std::cout << "\n[*] CFG Analysis Report\n";
         std::cout << "    Blocks            : " << report.block_count << "\n";
         std::cout << "    Edges             : " << report.edge_count << "\n";
         std::cout << "    Cyclomatic Cmplx  : " << report.cyclomatic_complexity << "\n";
@@ -147,27 +125,22 @@ int main(int argc, char* argv[]) {
             std::cout << "\n";
         }
 
-        CFGPrinter printer(*graph_engine, report, graph_engine->get_entry());
+        CFGPrinter printer(graph, report, entry);
         printer.export_annotated_dot(output_file);
         printer.print_ascii_summary();
-       
+
         std::cout << "[*] Running Graphviz to generate PDF...\n";
-        
-       
+
         std::string pdf_file = output_file;
         size_t dot_pos = pdf_file.find_last_of('.');
-        if (dot_pos != std::string::npos) {
+        if (dot_pos != std::string::npos)
             pdf_file = pdf_file.substr(0, dot_pos) + ".pdf";
-        } else {
+        else
             pdf_file += ".pdf";
-        }
 
-        
         std::string command = "dot -Tpdf " + output_file + " -o " + pdf_file;
-        
-        
         int result = std::system(command.c_str());
-        
+
         if (result == 0) {
             std::cout << "[+] Visualization ready! You can view it by running:\n";
             std::cout << "    explorer.exe " << pdf_file << "\n";

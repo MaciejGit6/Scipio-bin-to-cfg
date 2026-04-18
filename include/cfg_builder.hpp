@@ -13,14 +13,10 @@ public:
     [[nodiscard]] CFG build();
 
 private:
-    uint64_t entry_t;
-    std::vector<DecodedInsn> instructions_;
+    uint64_t                     entry_;
+    std::vector<DecodedInsn>     instructions_;
     std::unordered_set<uint64_t> leaders_;
 
     void collect_leaders();
     void assign_blocks(CFG& cfg) const;
 };
-
-
-
-
