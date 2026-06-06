@@ -49,10 +49,25 @@ void CFGBuilder::assign_blocks(CFG& cfg) const {
 
         current->add_instruction(insn.address, insn.mnemonic, insn.operands);
 
-        if (insn.type != INSN_NORMAL && insn.type != INSN_CALL) {
-            if (insn.target != 0)
-                cfg.add_edge(current->start_address, insn.target);
-            current = nullptr;
+        switch (insn.type) {
+            case INSN_BRANCH_UNCONDITIONAL:
+                if (insn.target != 0)
+                    cfg.add_edge(current->start_address, insn.target);
+                current = nullptr;            
+                break;
+
+            case INSN_BRANCH_CONDITIONAL:
+                if (insn.target != 0)
+                    cfg.add_edge(current->start_address, insn.target);
+               
+                break;
+
+            case INSN_RET:
+                current = nullptr;            
+                break;
+
+            default:                          
+                break;
         }
     }
 }
