@@ -98,6 +98,10 @@ Running Scipio on itself produces this CFG visualization (only a small fragment 
 
 <img width="1706" height="722" alt="image" src="https://github.com/user-attachments/assets/e80dfe39-d761-4e58-8159-c425cbc36a95" />
 
+## Another Example
+
+<img width="900" height="1072" alt="image" src="https://github.com/user-attachments/assets/3c9bb8b6-9b5d-431f-8085-3eb78d2badf8" />
+
 
 ## Project Milestones
 
