@@ -1,5 +1,4 @@
-scipio/analyzer/parser/DotParser.class
-scipio/analyzer/model/CFGGraph.class
-scipio/analyzer/model/CFGNode.class
+scipio/analyzer/Main$Block.class
 scipio/analyzer/Main.class
-scipio/analyzer/report/ReportGenerator.class
+scipio/analyzer/Main$Edge.class
+scipio/analyzer/Main$Cfg.class
