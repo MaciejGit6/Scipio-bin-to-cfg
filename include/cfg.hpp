@@ -28,6 +28,7 @@ public:
 
     // Export the graph to the industry-standard Graphviz DOT format
     void export_to_dot(const std::string& filename);
+    void export_to_json(const std::string& filename) const;
 };
 
 

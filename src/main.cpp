@@ -127,6 +127,7 @@ int main(int argc, char* argv[]) {
 
         CFGPrinter printer(graph, report, entry);
         printer.export_annotated_dot(output_file);
+        graph.export_to_json(output_file + ".json");
         printer.print_ascii_summary();
 
         std::cout << "[*] Running Graphviz to generate PDF...\n";
