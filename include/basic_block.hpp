@@ -18,8 +18,9 @@ class BasicBlock {
 public:
     uint64_t start_address;
     uint64_t end_address;
+
+    std::string func;   // function this block belongs to ("" if unknown)
     
-    // The straight-line code inside this block
     std::vector<Instruction> instructions;
 
     // Edges in our graph: Where does the program go after this block?

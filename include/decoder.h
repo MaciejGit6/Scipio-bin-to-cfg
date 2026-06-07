@@ -20,6 +20,7 @@ typedef struct{
     char operands[128];
     InsnType type;
     uint64_t target;
+    char func[64];
 } DecodedInsn;
 
 DecodedInsn decode_instruction(uint64_t address,
