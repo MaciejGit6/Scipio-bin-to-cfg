@@ -7,6 +7,19 @@
 extern "C" {
 #endif
 
+typedef struct {
+    uint32_t st_name;
+    uint8_t  st_info;   // type (low nibble) + binding (high nibble)
+    uint8_t  st_other;
+    uint16_t st_shndx;
+    uint64_t st_value;  // virtual address
+    uint64_t st_size;   // size in bytes
+} Elf64_Sym;
+
+#define ELF_ST_TYPE(info) ((info) & 0xf)
+#define STT_FUNC          2
+#define SHT_SYMTAB        2
+
 // ---------------------------------------------------------
 // ELF64 Main Header Structure
 // ---------------------------------------------------------

@@ -77,6 +77,43 @@ int parse_elf_header(const char* filepath) {
     return 0;
 }
 
+typedef struct {
+    uint64_t    value;
+    uint64_t    size;
+    const char* name;   //points into mmapped .strtab (valid while mapped)
+} FuncSym;
+
+static FuncSym* collect_functions(uint8_t* mapped_data,
+                                  Elf64_Ehdr* elf_hdr,
+                                  Elf64_Shdr* section_headers,
+                                  size_t* out_count) {
+    *out_count = 0;
+    for (int i = 0; i < elf_hdr->e_shnum; i++) {
+        Elf64_Shdr* shdr = &section_headers[i];
+        if (shdr->sh_type != SHT_SYMTAB || shdr->sh_entsize == 0)
+            continue;
+
+        Elf64_Sym* symbols   = (Elf64_Sym*)(mapped_data + shdr->sh_offset);
+        size_t     sym_count = shdr->sh_size / shdr->sh_entsize;
+        Elf64_Shdr* str_shdr = &section_headers[shdr->sh_link];
+        const char* sym_str  = (const char*)(mapped_data + str_shdr->sh_offset);
+
+        FuncSym* funcs = (FuncSym*)malloc(sizeof(FuncSym) * sym_count);
+        size_t   n     = 0;
+        for (size_t s = 0; s < sym_count; s++) {
+            if (ELF_ST_TYPE(symbols[s].st_info) == STT_FUNC && symbols[s].st_size > 0) {
+                funcs[n].value = symbols[s].st_value;
+                funcs[n].size  = symbols[s].st_size;
+                funcs[n].name  = sym_str + symbols[s].st_name;
+                n++;
+            }
+        }
+        *out_count = n;
+        return funcs;
+    }
+    return NULL; //stripped binary
+}
+
 int disassemble_text_section(const char* filepath, InstructionCallback callback) {
     int fd = open(filepath, O_RDONLY);
     if (fd < 0) return -1;
@@ -96,13 +133,21 @@ int disassemble_text_section(const char* filepath, InstructionCallback callback)
 
         if (strcmp(name, ".text") == 0) {
             uint8_t* text_code = mapped_data + shdr->sh_offset;
-            
+
+            size_t   func_count = 0;
+            FuncSym* funcs = collect_functions(mapped_data, elf_hdr,
+                                               section_headers, &func_count);
+            printf("[*] Found %zu function symbols.\n", func_count);
+
             printf("\n[*] Initializing Capstone Engine (x86_64)...\n");
             
             csh handle;
             // Opening Capstone for x86 architecture, 64-bit mode
             if (cs_open(CS_ARCH_X86, CS_MODE_64, &handle) != CS_ERR_OK) {
                 printf("[-] Error: Failed to initialize Capstone!\n");
+                free(funcs);
+                munmap(mapped_data, file_stat.st_size);
+                close(fd);
                 return -1;
             }
 
@@ -127,6 +172,7 @@ int disassemble_text_section(const char* filepath, InstructionCallback callback)
             }
 
             cs_close(&handle);
+            free(funcs);
             munmap(mapped_data, file_stat.st_size);
             close(fd);
             return 0;
