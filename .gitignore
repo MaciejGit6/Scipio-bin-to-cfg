@@ -6,3 +6,12 @@ scipio
 *.pdf
 *.cfg
 *.svg
+
+# Java / Maven
+*.jar
+*.class
+target/
+dependency-reduced-pom.xml
+
+# Generated CFG output
+*.cfg.json
