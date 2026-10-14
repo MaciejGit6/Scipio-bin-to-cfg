@@ -15,3 +15,9 @@ dependency-reduced-pom.xml
 
 # Generated CFG output
 *.cfg.json
+
+# Compiled sample binaries (no extension)
+a_O0
+a_O0b
+a_O2
+b_unrelated
