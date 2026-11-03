@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
         uint64_t entry = get_elf_entry(input_file.c_str());
         builder = std::make_unique<CFGBuilder>(entry);
 
-        disassemble_text_section(input_file.c_str(), instruction_receiver);
+        disassemble_text_section(input_file.c_str(), instruction_receiver, nullptr);
 
         auto graph = builder->build();
 

@@ -72,8 +72,13 @@ int parse_elf_header(const char* filepath);
 // Define a function pointer type for the C++ callback
 typedef void (*InstructionCallback)(uint64_t address, const char* mnemonic, const char* operands);
 
-// Update your disassembler prototype to accept this callback
-int disassemble_text_section(const char* filepath, InstructionCallback callback);
+// Called once per sized function symbol in .symtab (not at all if stripped)
+typedef void (*FunctionCallback)(uint64_t address, uint64_t size, const char* name);
+
+// Function symbols are reported before any instructions
+int disassemble_text_section(const char* filepath,
+                             InstructionCallback callback,
+                             FunctionCallback func_callback);
 
 
 #ifdef __cplusplus
