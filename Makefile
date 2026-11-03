@@ -3,8 +3,9 @@ CC = gcc
 CXX = g++
 
 # Compiler Flags
-CFLAGS = -Wall -Wextra -g -Iinclude
-CXXFLAGS = -Wall -Wextra -g -Iinclude -std=c++17
+# -MMD -MP: rebuild objects when a header they include changes
+CFLAGS = -Wall -Wextra -g -Iinclude -MMD -MP
+CXXFLAGS = -Wall -Wextra -g -Iinclude -std=c++17 -MMD -MP
 
 # Linker Flags (External Libraries)
 LDFLAGS = -lcapstone
@@ -20,6 +21,7 @@ CXX_SRCS = $(shell find src -type f -name '*.cpp')
 C_OBJS = $(C_SRCS:.c=.o)
 CXX_OBJS = $(CXX_SRCS:.cpp=.o)
 OBJS = $(C_OBJS) $(CXX_OBJS)
+DEPS = $(OBJS:.o=.d)
 
 # ---------------------------------------------------
 # Build Rules
@@ -40,7 +42,9 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(DEPS) $(TARGET)
+
+-include $(DEPS)
 
 # ---------------------------------------------------
 # Installation Rules
