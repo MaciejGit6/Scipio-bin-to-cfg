@@ -27,6 +27,10 @@ public:
     // Using shared_ptr prevents memory leaks when building complex graphs.
     std::vector<std::shared_ptr<BasicBlock>> successors;
 
+    // Direct call targets made from this block. Kept apart from successors:
+    // they are not control-flow edges, but they make the callee reachable.
+    std::vector<uint64_t> callees;
+
     // Constructor requires a starting address
     BasicBlock(uint64_t start) : start_address(start), end_address(0) {}
 

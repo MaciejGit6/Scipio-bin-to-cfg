@@ -14,11 +14,17 @@ private:
     
     uint64_t entry_address;
 
+    // Extra reachability roots besides the entry point (e.g. main, which
+    // _start only reaches through an indirect call into libc)
+    std::vector<uint64_t> roots;
+
 public:
 
     const BasicBlock* get_block(uint64_t address) const;
     std::vector<uint64_t> all_block_addresses() const;
     uint64_t get_entry() const { return entry_address; }
+    const std::vector<uint64_t>& get_roots() const { return roots; }
+    void add_root(uint64_t address) { roots.push_back(address); }
         
     CFG(uint64_t entry) : entry_address(entry) {}
 

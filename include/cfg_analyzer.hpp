@@ -1,19 +1,20 @@
 #pragma once 
 #include "cfg.hpp"
 #include <unordered_set>
+#include <utility>
 #include <vector>
 #include <optional>
 
 struct AnalysisReport{
     int block_count = 0;
     int edge_count = 0;
+    int component_count = 0;
     int cyclomatic_complexity = 0;
 
     std::vector<uint64_t> reachable_blocks;
     std::vector<uint64_t> unreachable_blocks;
     std::vector<uint64_t> loop_headers;
-
-
+    std::vector<std::pair<uint64_t, uint64_t>> back_edges;   // (from, to)
 };
 
 class CFGAnalyzer {
@@ -28,7 +29,8 @@ private:
     uint64_t entry_;
 
     std::unordered_set<uint64_t> bfs_reachable() const;
-    std::unordered_set<uint64_t> dfs_back_edges() const;
+    std::vector<std::pair<uint64_t, uint64_t>> dfs_back_edges() const;
+    int count_components() const;
 
 };
 

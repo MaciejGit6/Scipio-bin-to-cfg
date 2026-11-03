@@ -70,11 +70,10 @@ void CFGPrinter::export_annotated_dot(const std::string& filename) const {
         for (const auto& succ : block->successors) {
             uint64_t s = succ->start_address;
 
-            
-            bool is_back_edge = s <= addr &&
-                std::find(report_.loop_headers.begin(),
-                          report_.loop_headers.end(), s)
-                != report_.loop_headers.end();
+            bool is_back_edge = std::find(report_.back_edges.begin(),
+                                          report_.back_edges.end(),
+                                          std::make_pair(addr, s))
+                                != report_.back_edges.end();
 
             out << "    \"0x" << std::hex << addr
                 << "\" -> \"0x" << s << "\"";

@@ -16,7 +16,10 @@ void CFG::add_edge(uint64_t source_addr, uint64_t target_addr) {
     auto source_block = get_or_create_block(source_addr);
     auto target_block = get_or_create_block(target_addr);
     
-    // Add the target to the source's successors (The Adjacency List)
+    // Add the target to the source's successors (The Adjacency List),
+    // e.g. a conditional jump to the next instruction must not count twice
+    for (const auto& succ : source_block->successors)
+        if (succ == target_block) return;
     source_block->successors.push_back(target_block);
 }
 

@@ -26,6 +26,12 @@ extern "C" void instruction_receiver(uint64_t address,
     builder->ingest(address, mnemonic, operands);
 }
 
+extern "C" void function_receiver(uint64_t address,
+                                  uint64_t /*size*/,
+                                  const char* name) {
+    builder->add_function(address, name);
+}
+
 
 
 
@@ -107,7 +113,8 @@ int main(int argc, char* argv[]) {
         uint64_t entry = get_elf_entry(input_file.c_str());
         builder = std::make_unique<CFGBuilder>(entry);
 
-        disassemble_text_section(input_file.c_str(), instruction_receiver, nullptr);
+        disassemble_text_section(input_file.c_str(), instruction_receiver,
+                                 function_receiver);
 
         auto graph = builder->build();
 
