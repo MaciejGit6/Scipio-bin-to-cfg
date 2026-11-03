@@ -104,7 +104,7 @@ void CFGPrinter::print_ascii_summary() const {
     int shown = 0;
     for (uint64_t addr : report_.reachable_blocks) {
         if (shown >= MAX_SHOWN) {
-            std::cout << "    ... and "
+            std::cout << "    ... and " << std::dec
                     << (report_.reachable_blocks.size() - MAX_SHOWN)
                     << " more\n";
             break;
@@ -116,7 +116,8 @@ void CFGPrinter::print_ascii_summary() const {
         int bar_len = (b->instructions.size() * BAR_MAX) / max_insns;
         bar_len = std::max(bar_len, 1);
 
-        std::cout << "    0x" << std::hex << std::setw(8) << addr << "  |"
+        std::cout << "    0x" << std::hex << std::setfill('0') << std::setw(8) << addr
+                << std::setfill(' ') << "  |"
                 << std::string(bar_len, '#')
                 << std::string(BAR_MAX - bar_len, ' ')
                 << "| " << std::dec << b->instructions.size() << "\n";
@@ -124,7 +125,7 @@ void CFGPrinter::print_ascii_summary() const {
     }
 
     if (!report_.unreachable_blocks.empty()) {
-        std::cout << "\n    [dead code: "
+        std::cout << "\n    [dead code: " << std::dec
                 << report_.unreachable_blocks.size()
                 << " unreachable blocks]\n";
     }

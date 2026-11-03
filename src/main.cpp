@@ -5,6 +5,7 @@
 #include <unistd.h>  // Required for readlink()
 #include <limits.h>  // Required for PATH_MAX
 #include <cstdlib>
+#include <sys/wait.h>
 #include "elf_parser.h"
 #include "cfg_builder.hpp"
 
@@ -30,6 +31,22 @@ extern "C" void function_receiver(uint64_t address,
                                   uint64_t /*size*/,
                                   const char* name) {
     builder->add_function(address, name);
+}
+
+// Runs Graphviz directly (no shell), so file names are never interpreted as commands
+static int run_dot(const std::string& dot_file, const std::string& pdf_file) {
+    pid_t pid = fork();
+    if (pid < 0) return -1;
+
+    if (pid == 0) {
+        execlp("dot", "dot", "-Tpdf", dot_file.c_str(), "-o", pdf_file.c_str(),
+               static_cast<char*>(nullptr));
+        _exit(127);
+    }
+
+    int status = 0;
+    if (waitpid(pid, &status, 0) < 0) return -1;
+    return (WIFEXITED(status) && WEXITSTATUS(status) == 0) ? 0 : -1;
 }
 
 
@@ -108,56 +125,66 @@ int main(int argc, char* argv[]) {
     std::cout << "[*] Output Graph  : " << output_file << "\n";
     std::cout << "[*] Initializing Scipio Engine...\n\n";
 
-    if (parse_elf_header(input_file.c_str()) == 0) {
+    if (parse_elf_header(input_file.c_str()) != 0)
+        return 1;
 
-        uint64_t entry = get_elf_entry(input_file.c_str());
-        builder = std::make_unique<CFGBuilder>(entry);
+    uint64_t entry = get_elf_entry(input_file.c_str());
+    builder = std::make_unique<CFGBuilder>(entry);
 
-        disassemble_text_section(input_file.c_str(), instruction_receiver,
-                                 function_receiver);
+    if (disassemble_text_section(input_file.c_str(), instruction_receiver,
+                                 function_receiver) != 0) {
+        std::cout << "[-] Error: Could not disassemble " << input_file << "\n";
+        return 1;
+    }
 
-        auto graph = builder->build();
+    auto graph = builder->build();
 
-        CFGAnalyzer analyzer(graph, entry);
-        auto report = analyzer.analyze();
+    CFGAnalyzer analyzer(graph, entry);
+    auto report = analyzer.analyze();
 
-        std::cout << "\n[*] CFG Analysis Report\n";
-        std::cout << "    Blocks            : " << report.block_count << "\n";
-        std::cout << "    Edges             : " << report.edge_count << "\n";
-        std::cout << "    Cyclomatic Cmplx  : " << report.cyclomatic_complexity << "\n";
-        std::cout << "    Dead blocks       : " << report.unreachable_blocks.size() << "\n";
+    std::cout << "\n[*] CFG Analysis Report\n";
+    std::cout << "    Blocks            : " << report.block_count << "\n";
+    std::cout << "    Edges             : " << report.edge_count << "\n";
+    std::cout << "    Cyclomatic Cmplx  : " << report.cyclomatic_complexity << "\n";
+    std::cout << "    Dead blocks       : " << report.unreachable_blocks.size() << "\n";
 
-        if (!report.loop_headers.empty()) {
-            std::cout << "    Loop headers      : ";
-            for (uint64_t addr : report.loop_headers)
-                std::cout << std::hex << "0x" << addr << " ";
-            std::cout << "\n";
-        }
+    if (!report.loop_headers.empty()) {
+        std::cout << "    Loop headers      : ";
+        for (uint64_t addr : report.loop_headers)
+            std::cout << std::hex << "0x" << addr << " ";
+        std::cout << std::dec << "\n";
+    }
 
-        CFGPrinter printer(graph, report, entry);
-        printer.export_annotated_dot(output_file);
-        graph.export_to_json(output_file + ".json");
-        printer.print_ascii_summary();
+    CFGPrinter printer(graph, report, entry);
+    printer.export_annotated_dot(output_file);
+    graph.export_to_json(output_file + ".json");
+    printer.print_ascii_summary();
 
-        std::cout << "[*] Running Graphviz to generate PDF...\n";
+    std::cout << "[*] Running Graphviz to generate PDF...\n";
 
-        std::string pdf_file = output_file;
-        size_t dot_pos = pdf_file.find_last_of('.');
-        if (dot_pos != std::string::npos)
-            pdf_file = pdf_file.substr(0, dot_pos) + ".pdf";
-        else
-            pdf_file += ".pdf";
+    // Only a dot in the file name counts, not one in "./" or "../dir/"
+    std::string pdf_file = output_file;
+    size_t name_start = pdf_file.find_last_of('/');
+    name_start = (name_start == std::string::npos) ? 0 : name_start + 1;
+    size_t dot_pos = pdf_file.find_last_of('.');
+    if (dot_pos != std::string::npos && dot_pos > name_start)
+        pdf_file = pdf_file.substr(0, dot_pos) + ".pdf";
+    else
+        pdf_file += ".pdf";
 
-        std::string command = "dot -Tpdf " + output_file + " -o " + pdf_file;
-        int result = std::system(command.c_str());
+    // e.g. "graph.pdf" as the output name: don't let dot overwrite its own input
+    if (pdf_file == output_file)
+        pdf_file += ".pdf";
 
-        if (result == 0) {
-            std::cout << "[+] Visualization ready! You can view it by running:\n";
-            std::cout << "    explorer.exe " << pdf_file << "\n";
-        } else {
-            std::cout << "[-] Error: Graphviz rendering failed.\n";
-            std::cout << "    Make sure it is installed: sudo apt install graphviz\n";
-        }
+    int result = run_dot(output_file, pdf_file);
+
+    if (result == 0) {
+        std::cout << "[+] Visualization ready! You can view it by running:\n";
+        std::cout << "    explorer.exe " << pdf_file << "\n";
+    } else {
+        std::cout << "[-] Error: Graphviz rendering failed.\n";
+        std::cout << "    Make sure it is installed: sudo apt install graphviz\n";
+        return 1;
     }
 
     return 0;
